@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  hrms-db:
+    image: postgres:14.1-alpine
+    restart: always
+    ports:
+      - 5300:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hrms
+    networks:
+      - hrms
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+networks:
+  hrms:
+volumes:
+  db:
+    driver: local
