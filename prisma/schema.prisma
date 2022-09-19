@@ -20,7 +20,6 @@ model User {
   dateOfBirth  DateTime
   avatarUrl    String
   createdBy    Int
-  title        String
   createdAt    DateTime       @default(now())
   upDatedAt    DateTime       @updatedAt
   UserFunction UserFunction[]
