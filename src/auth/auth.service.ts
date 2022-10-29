@@ -47,6 +47,15 @@ export class AuthService {
     }
   }
 
+  async getAllUser() {
+    try {
+      const users = await this.prisma.user.findMany();
+      return users;
+    } catch (error) {
+      throw new ForbiddenException();
+    }
+  }
+
   async signin(dto: SigninDto) {
     try {
       const user = await this.prisma.user.findUnique({
