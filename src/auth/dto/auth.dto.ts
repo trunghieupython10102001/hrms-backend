@@ -1,10 +1,4 @@
-import {
-  IsDate,
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class SignupDto {
   @IsString()
