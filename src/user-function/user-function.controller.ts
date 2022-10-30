@@ -39,8 +39,9 @@ export class UserFunctionController {
   update(
     @Param('id') id: string,
     @Body() updateUserFunctionDto: UpdateUserFunctionDto,
+    @Req() req: Request,
   ) {
-    return this.userFunctionService.update(+id, updateUserFunctionDto);
+    return this.userFunctionService.update(+id, updateUserFunctionDto, req);
   }
 
   @Delete(':id')

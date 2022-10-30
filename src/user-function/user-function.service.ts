@@ -34,8 +34,30 @@ export class UserFunctionService {
     }
   }
 
-  update(id: number, updateUserFunctionDto: UpdateUserFunctionDto) {
-    return `This action updates a #${id} userFunction`;
+  async update(
+    functionId: number,
+    updateUserFunctionDto: UpdateUserFunctionDto,
+    req: Request,
+  ) {
+    try {
+      const userFunction = await this.prisma.userFunction.update({
+        where: {
+          userID_functionID: {
+            userID: updateUserFunctionDto.userId,
+            functionID: updateUserFunctionDto.functionId,
+          },
+        },
+        data: {
+          isGrant: updateUserFunctionDto.isGrant,
+          isDelete: updateUserFunctionDto.isDelete,
+          isInsert: updateUserFunctionDto.isInsert,
+          isUpdate: updateUserFunctionDto.isUpdate,
+        },
+      });
+      return userFunction;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   remove(id: number) {
