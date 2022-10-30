@@ -32,8 +32,13 @@ export class FunctionService {
     }
   }
 
-  findAll() {
-    return `This action returns all function`;
+  async findAll() {
+    try {
+      const allFunction = await this.prisma.function.findMany();
+      return allFunction;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   findOne(id: number) {
