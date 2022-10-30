@@ -95,4 +95,17 @@ export class AuthService {
       secret: this.config.get('JWT_SECRET'),
     });
   }
+
+  async findOne(id: number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+      });
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
 }
