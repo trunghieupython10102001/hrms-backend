@@ -27,7 +27,30 @@ export class UserFunctionService {
         const userFunction = await this.prisma.userFunction.findMany({
           where: { userID: id },
         });
-        return userFunction;
+
+        const functions = await this.prisma.function.findMany();
+
+        // const result = userFunction.map(async (item) => {
+        //   const functionInfo = await this.prisma.function.findUnique({
+        //     where: {
+        //       id: item.functionID,
+        //     },
+        //   });
+        //   return {
+        //     ...item,
+        //     functionInfo,
+        //   };
+        // });
+
+        const idList = userFunction.map((item) => item.functionID);
+        const result = userFunction.map((item) => {
+          return item;
+        });
+        // return {
+        //   userFunction,
+        //   functions,
+        // };
+        return result;
       }
     } catch (error) {
       throw new InternalServerErrorException();

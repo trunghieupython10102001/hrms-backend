@@ -41,8 +41,17 @@ export class FunctionService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} function`;
+  async findOne(id: number) {
+    try {
+      const functionInfo = await this.prisma.function.findUnique({
+        where: {
+          id,
+        },
+      });
+      return functionInfo;
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   update(id: number, updateFunctionDto: UpdateFunctionDto) {
