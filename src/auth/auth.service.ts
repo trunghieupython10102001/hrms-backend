@@ -77,7 +77,10 @@ export class AuthService {
             accessToken: await this.signToken(user.id, user.username),
           };
         } else {
-          throw new ForbiddenException('Username or password is incorrect.');
+          return {
+            message: 'Username or password is incorrect',
+            status: 401,
+          };
         }
       }
     } catch (error) {
