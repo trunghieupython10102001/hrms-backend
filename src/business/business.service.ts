@@ -62,10 +62,6 @@ export class BusinessService {
     return `This action returns a #${id} business`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} business`;
-  }
-
   async createOrUpdate(dto: CreateBusinessDto, username: string) {
     const {
       businessId,
@@ -80,8 +76,6 @@ export class BusinessService {
       note,
       status,
     } = dto;
-
-    console.log('username ', username);
 
     const conn = this.db.getConnection();
     const connection = await conn.connect();

@@ -2,7 +2,7 @@ import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateBusinessDto {
   @IsNumber()
-  businessId?: 0 | 1;
+  businessId: number;
 
   @IsString()
   @IsOptional()
