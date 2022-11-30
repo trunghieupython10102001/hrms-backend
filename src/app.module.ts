@@ -5,10 +5,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { FunctionModule } from './function/function.module';
 import { UserModule } from './user/user.module';
 import { UserFunctionModule } from './user-function/user-function.module';
-import { ImportExportModule } from './import-export/import-export.module';
 import { BusinessModule } from './business/business.module';
 import { DbModule } from './db/db.module';
 import { BusinessAreaModule } from './business-area/business-area.module';
+import { BusinessDetailModule } from './business-detail/business-detail.module';
+import { ContactLogModule } from './contact-log/contact-log.module';
 
 @Module({
   imports: [
@@ -18,10 +19,11 @@ import { BusinessAreaModule } from './business-area/business-area.module';
     FunctionModule,
     UserModule,
     UserFunctionModule,
-    ImportExportModule,
     BusinessModule,
     DbModule,
     BusinessAreaModule,
+    BusinessDetailModule,
+    ContactLogModule,
   ],
 })
 export class AppModule {}
