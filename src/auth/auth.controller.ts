@@ -17,6 +17,11 @@ export class AuthController {
     return this.authService.signin(dto);
   }
 
+  @Post('refreshToken')
+  getNewToken(@Body() body: any) {
+    return this.authService.getNewToken(body?.refreshToken);
+  }
+
   @Get('getAll')
   getAll() {
     return this.authService.getAllUser();
@@ -25,5 +30,10 @@ export class AuthController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(+id);
+  }
+
+  @Get('getMe')
+  getMe(@Req() req: any) {
+    return this.authService.findOne(req.user.id);
   }
 }

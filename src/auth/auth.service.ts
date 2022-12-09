@@ -75,6 +75,7 @@ export class AuthService {
               username: user.username,
             },
             accessToken: await this.signToken(user.id, user.username),
+            refreshTokeN: await this.signRefreshToken(user.id, user.username),
           };
         } else {
           return {
@@ -88,14 +89,58 @@ export class AuthService {
     }
   }
   async signToken(userId: number, username: string): Promise<string> {
+    const roles = await this.prisma.userFunction.findMany({
+      where: {
+        userID: userId,
+      },
+      include: {
+        function: true,
+      },
+    });
+
+    const payload = {
+      sub: userId,
+      username,
+      roles,
+    };
+
+    return this.jwt.signAsync(payload, {
+      expiresIn: '15m',
+      secret: this.config.get('JWT_SECRET'),
+    });
+  }
+
+  async getNewToken(refreshToken: string) {
+    if (!refreshToken)
+      return {
+        code: 401,
+        message: 'Please login or register',
+      };
+    const payload = this.jwt.decode(refreshToken) as any;
+    if (
+      this.jwt.verify(refreshToken, {
+        secret: this.config.get('JWT_REFRESH_TOKEN_SECRET'),
+      })
+    ) {
+      return {
+        token: await this.signToken(payload?.sub, payload?.username),
+      };
+    }
+    return {
+      code: 403,
+      message: 'Invalid refresh token',
+    };
+  }
+
+  async signRefreshToken(userId: number, username: string): Promise<string> {
     const payload = {
       sub: userId,
       username,
     };
 
     return this.jwt.signAsync(payload, {
-      expiresIn: '15m',
-      secret: this.config.get('JWT_SECRET'),
+      expiresIn: '3d',
+      secret: this.config.get('JWT_REFRESH_TOKEN_SECRET'),
     });
   }
 
@@ -106,7 +151,18 @@ export class AuthService {
           id,
         },
       });
-      return user;
+      const roles = await this.prisma.userFunction.findMany({
+        where: {
+          userID: id,
+        },
+        include: {
+          function: true,
+        },
+      });
+      return {
+        user,
+        roles,
+      };
     } catch (error) {
       throw new InternalServerErrorException();
     }

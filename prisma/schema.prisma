@@ -37,7 +37,8 @@ model UserType {
 
 model Function {
   id               Int                @id @default(autoincrement())
-  functionName     String
+  functionName     String             @default("")
+  functionLink     String
   isDisplay        Boolean            @default(true)
   isActive         Boolean            @default(true)
   parentID         Int

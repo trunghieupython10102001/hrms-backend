@@ -11,6 +11,10 @@ export class CreateFunctionDto {
   @IsNotEmpty()
   functionName: string;
 
+  @IsString()
+  @IsNotEmpty()
+  functionLink: string;
+
   @IsBoolean()
   @IsOptional()
   isDisplay?: boolean;

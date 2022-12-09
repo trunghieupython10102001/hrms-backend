@@ -8,11 +8,13 @@ export class FunctionService {
   constructor(private prisma: PrismaService) {}
 
   async create(createFunctionDto: CreateFunctionDto, userId: any) {
-    const { functionName, isDisplay, isActive, parentID } = createFunctionDto;
+    const { functionName, isDisplay, isActive, parentID, functionLink } =
+      createFunctionDto;
     console.log(createFunctionDto);
     try {
       const functionInstantce = await this.prisma.function.create({
         data: {
+          functionLink,
           functionName,
           isDisplay,
           isActive,

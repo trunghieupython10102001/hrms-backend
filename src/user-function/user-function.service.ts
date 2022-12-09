@@ -29,7 +29,6 @@ export class UserFunctionService {
         });
 
         const functions = await this.prisma.function.findMany();
-
         // const result = userFunction.map(async (item) => {
         //   const functionInfo = await this.prisma.function.findUnique({
         //     where: {
