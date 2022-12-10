@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +13,6 @@ import { AuthService } from './auth.service';
 import { SigninDto, SignupDto } from './dto/auth.dto';
 import { JwtGuard } from './guard/jwt.guard';
 
-@UseGuards(JwtGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -22,6 +22,7 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
+  @UseGuards(JwtGuard)
   @Get('getMe')
   getMe(@Req() req: any) {
     return this.authService.findOne(+req.user.id);
@@ -37,11 +38,13 @@ export class AuthController {
     return this.authService.getNewToken(body?.refreshToken);
   }
 
+  @UseGuards(JwtGuard)
   @Get('getAll')
-  getAll() {
-    return this.authService.getAllUser();
+  getAll(@Query() query) {
+    return this.authService.getAllUser(query);
   }
 
+  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(+id);

@@ -47,9 +47,17 @@ export class AuthService {
     }
   }
 
-  async getAllUser() {
+  async getAllUser(query: any) {
     try {
-      const users = await this.prisma.user.findMany();
+      const { username, fullname, email, phoneNumber } = query;
+      const users = await this.prisma.user.findMany({
+        where: {
+          username,
+          fullname,
+          email,
+          phoneNumber,
+        },
+      });
       return users;
     } catch (error) {
       throw new ForbiddenException();
