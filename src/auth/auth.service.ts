@@ -123,7 +123,8 @@ export class AuthService {
       })
     ) {
       return {
-        token: await this.signToken(payload?.sub, payload?.username),
+        accessToken: await this.signToken(payload?.sub, payload?.username),
+        refreshToken: this.signRefreshToken(payload?.sub, payload?.username),
       };
     }
     return {

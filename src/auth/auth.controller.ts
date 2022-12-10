@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SigninDto, SignupDto } from './dto/auth.dto';
+import { JwtGuard } from './guard/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -10,6 +20,11 @@ export class AuthController {
   @Post('signup')
   signup(@Body() dto: SignupDto, @Req() req: Request) {
     return this.authService.signup(dto);
+  }
+
+  @Get('getMe')
+  getMe(@Req() req: any) {
+    return this.authService.findOne(+req.user.id);
   }
 
   @Post('signin')
@@ -30,10 +45,5 @@ export class AuthController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(+id);
-  }
-
-  @Get('getMe')
-  getMe(@Req() req: any) {
-    return this.authService.findOne(req.user.id);
   }
 }
