@@ -83,7 +83,7 @@ export class AuthService {
               username: user.username,
             },
             accessToken: await this.signToken(user.id, user.username),
-            refreshTokeN: await this.signRefreshToken(user.id, user.username),
+            refreshToken: await this.signRefreshToken(user.id, user.username),
           };
         } else {
           return {
@@ -132,7 +132,10 @@ export class AuthService {
     ) {
       return {
         accessToken: await this.signToken(payload?.sub, payload?.username),
-        refreshToken: this.signRefreshToken(payload?.sub, payload?.username),
+        refreshToken: await this.signRefreshToken(
+          payload?.sub,
+          payload?.username,
+        ),
       };
     }
     return {
