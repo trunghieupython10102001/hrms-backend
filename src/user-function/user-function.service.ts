@@ -8,8 +8,9 @@ import { Request } from 'express';
 export class UserFunctionService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserFunctionDto: CreateUserFunctionDto) {
-    return 'This action adds a new userFunction';
+  async create(createUserFunctionDto: CreateUserFunctionDto) {
+    try {
+    } catch (error) {}
   }
 
   async findAll() {
@@ -56,28 +57,38 @@ export class UserFunctionService {
     }
   }
 
-  async update(
-    functionId: number,
+  async createOrUpdate(
+    createdBy: number,
     updateUserFunctionDto: UpdateUserFunctionDto,
-    req: Request,
   ) {
     try {
-      const userFunction = await this.prisma.userFunction.update({
-        where: {
-          userID_functionID: {
-            userID: updateUserFunctionDto.userId,
-            functionID: updateUserFunctionDto.functionId,
-          },
-        },
-        data: {
-          isGrant: updateUserFunctionDto.isGrant,
+      const userFunction = await this.prisma.userFunction.upsert({
+        create: {
+          functionID: updateUserFunctionDto.functionId,
+          userID: updateUserFunctionDto.userId,
           isDelete: updateUserFunctionDto.isDelete,
+          isGrant: updateUserFunctionDto.isGrant,
           isInsert: updateUserFunctionDto.isInsert,
           isUpdate: updateUserFunctionDto.isUpdate,
+          createdBy,
+        },
+        update: {
+          isDelete: updateUserFunctionDto.isDelete,
+          isGrant: updateUserFunctionDto.isGrant,
+          isInsert: updateUserFunctionDto.isInsert,
+          isUpdate: updateUserFunctionDto.isUpdate,
+          createdBy,
+        },
+        where: {
+          userID_functionID: {
+            functionID: updateUserFunctionDto.functionId,
+            userID: updateUserFunctionDto.userId,
+          },
         },
       });
       return userFunction;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException();
     }
   }

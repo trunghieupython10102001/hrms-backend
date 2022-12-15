@@ -21,8 +21,14 @@ export class UserFunctionController {
   constructor(private readonly userFunctionService: UserFunctionService) {}
 
   @Post()
-  create(@Body() createUserFunctionDto: CreateUserFunctionDto) {
-    return this.userFunctionService.create(createUserFunctionDto);
+  create(
+    @Body() createUserFunctionDto: CreateUserFunctionDto,
+    @Req() req: any,
+  ) {
+    return this.userFunctionService.createOrUpdate(
+      +req?.user?.id,
+      createUserFunctionDto,
+    );
   }
 
   @Get()
@@ -35,14 +41,16 @@ export class UserFunctionController {
     return this.userFunctionService.findOne(+id, req);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUserFunctionDto: UpdateUserFunctionDto,
-    @Req() req: Request,
-  ) {
-    return this.userFunctionService.update(+id, updateUserFunctionDto, req);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Body() updateUserFunctionDto: UpdateUserFunctionDto,
+  //   @Req() req: any,
+  // ) {
+  //   return this.userFunctionService.update(
+  //     +req?.user?.id,
+  //     updateUserFunctionDto,
+  //   );
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
