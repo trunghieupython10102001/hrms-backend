@@ -51,22 +51,32 @@ export class AuthService {
     try {
       const { keyword } = query;
       const users = await this.prisma.user.findMany({
-        where: {
-          OR: {
-            username: {
-              search: keyword,
+        where: !keyword
+          ? {}
+          : {
+              OR: [
+                {
+                  fullname: {
+                    contains: keyword,
+                  },
+                },
+                {
+                  username: {
+                    contains: keyword,
+                  },
+                },
+                {
+                  email: {
+                    contains: keyword,
+                  },
+                },
+                {
+                  phoneNumber: {
+                    contains: keyword,
+                  },
+                },
+              ],
             },
-            fullname: {
-              search: keyword,
-            },
-            email: {
-              search: keyword,
-            },
-            phoneNumber: {
-              search: keyword,
-            },
-          },
-        },
         select: {
           id: true,
           username: true,
