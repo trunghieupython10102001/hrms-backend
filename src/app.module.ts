@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { FunctionModule } from './function/function.module';
-import { UserModule } from './user/user.module';
 import { UserFunctionModule } from './user-function/user-function.module';
 import { BusinessModule } from './business/business.module';
 import { DbModule } from './db/db.module';
@@ -17,7 +16,6 @@ import { ContactLogModule } from './contact-log/contact-log.module';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     FunctionModule,
-    UserModule,
     UserFunctionModule,
     BusinessModule,
     DbModule,

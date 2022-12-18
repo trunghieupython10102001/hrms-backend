@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Int, NVarChar, Request, SmallInt } from 'mssql';
+import { DateTime, Int, NVarChar, Request, SmallInt } from 'mssql';
 import { DbService } from 'src/db/db.service';
 import { CreateContactLogDto } from './dto/create-contact-log.dto';
 import { GetContactLogDto } from './dto/get-contact-log.dto';
@@ -13,6 +13,7 @@ export class ContactLogService {
     username: string,
   ) {
     const { businessId, logId, content, note, status } = createContactLogDto;
+
     const conn = this.db.getConnection();
     const connection = await conn.connect();
     const request = new Request(connection);
@@ -44,12 +45,18 @@ export class ContactLogService {
   }
 
   async findAll(query: GetContactLogDto) {
-    const { businessId, logId } = query;
+    const { businessId, logId, fromDate, toDate } = query;
+
+    console.log('query', query);
+
     const conn = this.db.getConnection();
     const connection = await conn.connect();
     const request = new Request(connection);
     request.input('LogID', Int, logId);
     request.input('BusinessID', Int, businessId);
+    request.input('FromDate', DateTime, fromDate);
+    request.input('ToDate', DateTime, toDate);
+
     const result = await request.execute('SP_ContactLog_GetList_CMS');
     return result.recordsets;
   }

@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsDate, IsNumber, IsOptional } from 'class-validator';
 
 export class GetContactLogDto {
   @IsNumber()
@@ -11,4 +11,14 @@ export class GetContactLogDto {
   @IsOptional()
   @Type(() => Number)
   businessId?: number;
+
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  fromDate: Date;
+
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  toDate: Date;
 }

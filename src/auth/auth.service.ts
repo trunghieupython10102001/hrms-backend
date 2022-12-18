@@ -9,6 +9,7 @@ import { SigninDto, SignupDto } from './dto/auth.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -107,7 +108,10 @@ export class AuthService {
       if (!user) {
         throw new ForbiddenException('Username or password is incorrect.');
       } else {
-        if (await argon.verify(user.password, dto.password)) {
+        if (
+          (await argon.verify(user.password, dto.password)) &&
+          !user.isDeleted
+        ) {
           delete user.password;
           return {
             user: {
@@ -188,6 +192,34 @@ export class AuthService {
     });
   }
 
+  async updatePassword(userId: number, dto: UpdatePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (await argon.verify(user.password, dto.oldPassword)) {
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          password: await argon.hash(dto.newPassword),
+        },
+      });
+      return {
+        status: 200,
+        message: 'Update password successfully',
+      };
+    }
+
+    return {
+      status: 400,
+      message: 'Wrong password',
+    };
+  }
+
   async findOne(id: number) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -206,6 +238,26 @@ export class AuthService {
       return {
         user,
         roles,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async deleteUser(userId: number) {
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
+
+      return {
+        status: 200,
+        message: 'Delete user successfully',
       };
     } catch (error) {
       throw new InternalServerErrorException();
