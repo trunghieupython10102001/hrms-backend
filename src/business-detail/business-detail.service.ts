@@ -49,8 +49,15 @@ export class BusinessDetailService {
   }
 
   async findAll(query: GetBusinessDetailDto) {
-    const { businessDetailId, businessId, businessName, businessType, status } =
-      query;
+    const {
+      businessDetailId,
+      businessId,
+      businessName,
+      businessType,
+      status,
+      exportProductDetail,
+      importProductDetail,
+    } = query;
 
     const conn = this.db.getConnection();
     const connection = await conn.connect();
@@ -59,6 +66,8 @@ export class BusinessDetailService {
     request.input('BusinessDetailID', Int, businessDetailId);
     request.input('BusinessID', Int, businessId);
     request.input('BusinessName', NVarChar(255), businessName);
+    request.input('ImportProductDetail', NVarChar, importProductDetail);
+    request.input('ExportProductDetail', NVarChar, exportProductDetail);
     request.input('BusinessType', SmallInt, businessType);
     request.input('Status', SmallInt, status);
 

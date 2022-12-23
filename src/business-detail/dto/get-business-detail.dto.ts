@@ -16,6 +16,14 @@ export class GetBusinessDetailDto {
   @IsOptional()
   businessName?: string;
 
+  @IsString()
+  @IsOptional()
+  importProductDetail?: string;
+
+  @IsString()
+  @IsOptional()
+  exportProductDetail?: string;
+
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
