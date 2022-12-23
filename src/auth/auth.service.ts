@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
-import { SigninDto, SignupDto } from './dto/auth.dto';
+import { SigninDto, SignupDto, UpdateUserDto } from './dto/auth.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -19,7 +19,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto) {
+  async signup(dto: SignupDto, createdBy: number) {
     const password = await argon.hash(dto.password);
 
     try {
@@ -32,7 +32,7 @@ export class AuthService {
           phoneNumber: dto.phoneNumber,
           dateOfBirth: new Date(dto.dateOfBirth),
           avatarUrl: dto.avatarUrl,
-          createdBy: +dto.createdBy,
+          createdBy: +createdBy,
         },
       });
       delete user.password;
@@ -258,6 +258,33 @@ export class AuthService {
       return {
         status: 200,
         message: 'Delete user successfully',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateUser(id: number, dto: UpdateUserDto) {
+    const { avatarUrl, dateOfBirth, email, fullname, password, phoneNumber } =
+      dto;
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          avatarUrl,
+          dateOfBirth,
+          email,
+          fullname,
+          password: password && (await argon.hash(password)),
+          phoneNumber,
+        },
+      });
+      delete user.password;
+      return {
+        user,
+        message: 'Update user successfully',
       };
     } catch (error) {
       throw new InternalServerErrorException();

@@ -6,13 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { SigninDto, SignupDto } from './dto/auth.dto';
+import { SigninDto, SignupDto, UpdateUserDto } from './dto/auth.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { JwtGuard } from './guard/jwt.guard';
 
@@ -20,9 +21,11 @@ import { JwtGuard } from './guard/jwt.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(JwtGuard)
   @Post('signup')
-  signup(@Body() dto: SignupDto, @Req() req: Request) {
-    return this.authService.signup(dto);
+  signup(@Body() dto: SignupDto, @Req() req: any) {
+    console.log(req.user);
+    return this.authService.signup(dto, req?.user?.id);
   }
 
   @UseGuards(JwtGuard)
@@ -63,5 +66,11 @@ export class AuthController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.authService.deleteUser(+id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Put(':id')
+  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.authService.updateUser(+id, dto);
   }
 }
