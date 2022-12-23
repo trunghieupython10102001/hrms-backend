@@ -17,10 +17,10 @@ model User {
   password     String
   email        String         @unique
   fullname     String
-  phoneNumber  String
-  dateOfBirth  DateTime
-  avatarUrl    String
-  createdBy    Int
+  phoneNumber  String?
+  dateOfBirth  DateTime?
+  avatarUrl    String?
+  createdBy    Int?
   createdAt    DateTime       @default(now())
   upDatedAt    DateTime       @updatedAt
   UserFunction UserFunction[]
@@ -40,11 +40,11 @@ model UserType {
 model Function {
   id               Int                @id @default(autoincrement())
   functionName     String             @default("")
-  functionLink     String
+  functionLink     String?
   isDisplay        Boolean            @default(true)
   isActive         Boolean            @default(true)
-  parentID         Int
-  createdBy        Int
+  parentID         Int?
+  createdBy        Int?
   createdAt        DateTime           @default(now())
   upDatedAt        DateTime           @updatedAt
   UserFunction     UserFunction[]
@@ -58,7 +58,7 @@ model UserFunction {
   isInsert   Boolean
   isUpdate   Boolean
   isDelete   Boolean
-  createdBy  Int
+  createdBy  Int?
   createdAt  DateTime @default(now())
   upDatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userID], references: [id])

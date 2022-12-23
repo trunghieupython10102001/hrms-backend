@@ -1,0 +1,30 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[Function] ALTER COLUMN [functionLink] NVARCHAR(1000) NULL;
+ALTER TABLE [dbo].[Function] ALTER COLUMN [parentID] INT NULL;
+ALTER TABLE [dbo].[Function] ALTER COLUMN [createdBy] INT NULL;
+
+-- AlterTable
+ALTER TABLE [dbo].[User] ALTER COLUMN [phoneNumber] NVARCHAR(1000) NULL;
+ALTER TABLE [dbo].[User] ALTER COLUMN [dateOfBirth] DATETIME2 NULL;
+ALTER TABLE [dbo].[User] ALTER COLUMN [avatarUrl] NVARCHAR(1000) NULL;
+ALTER TABLE [dbo].[User] ALTER COLUMN [createdBy] INT NULL;
+
+-- AlterTable
+ALTER TABLE [dbo].[UserFunction] ALTER COLUMN [createdBy] INT NULL;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
