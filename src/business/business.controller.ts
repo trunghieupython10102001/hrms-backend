@@ -24,16 +24,12 @@ export class BusinessController {
     return this.businessService.createOrUpdate(
       createBusinessDto,
       req.user?.username,
+      req?.user?.roles,
     );
   }
 
   @Get()
-  findAll(@Query() query: GetBusinessDto) {
-    return this.businessService.findAll(query);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.businessService.findOne(+id);
+  findAll(@Query() query: GetBusinessDto, @Req() req: any) {
+    return this.businessService.findAll(query, req?.user?.roles);
   }
 }

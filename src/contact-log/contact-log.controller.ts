@@ -23,12 +23,13 @@ export class ContactLogController {
     return this.contactLogService.createOrUpdate(
       createContactLogDto,
       req?.user?.username,
+      req?.user?.roles,
     );
   }
 
   @Get()
-  findAll(@Query() query: GetContactLogDto) {
-    return this.contactLogService.findAll(query);
+  findAll(@Query() query: GetContactLogDto, @Req() req: any) {
+    return this.contactLogService.findAll(query, req?.user?.roles);
   }
 
   @Get(':id')

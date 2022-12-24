@@ -28,17 +28,18 @@ export class UserFunctionController {
     return this.userFunctionService.createOrUpdate(
       +req?.user?.id,
       createUserFunctionDto,
+      req?.user?.roles,
     );
   }
 
   @Get()
-  findAll() {
-    return this.userFunctionService.findAll();
+  findAll(@Req() req: any) {
+    return this.userFunctionService.findAll(req?.user?.roles);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
-    return this.userFunctionService.findOne(+id, req);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.userFunctionService.findOne(+id, req, req?.user?.roles);
   }
 
   // @Patch(':id')

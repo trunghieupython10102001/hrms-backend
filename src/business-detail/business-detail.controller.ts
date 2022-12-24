@@ -26,12 +26,13 @@ export class BusinessDetailController {
     return this.businessDetailService.createOrUpdate(
       createBusinessDetailDto,
       req?.user?.username,
+      req?.user?.roles,
     );
   }
 
   @Get()
-  findAll(@Query() query: GetBusinessDetailDto) {
-    return this.businessDetailService.findAll(query);
+  findAll(@Query() query: GetBusinessDetailDto, @Req() req: any) {
+    return this.businessDetailService.findAll(query, req?.user?.roles);
   }
 
   @Get(':id')

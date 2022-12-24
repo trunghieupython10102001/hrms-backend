@@ -6,6 +6,7 @@ import {
   Param,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { BusinessAreaService } from './business-area.service';
@@ -18,13 +19,19 @@ export class BusinessAreaController {
   constructor(private readonly businessAreaService: BusinessAreaService) {}
 
   @Post()
-  create(@Body() createBusinessAreaDto: CreateBusinessAreaDto) {
-    return this.businessAreaService.createOrUpdate(createBusinessAreaDto);
+  create(
+    @Body() createBusinessAreaDto: CreateBusinessAreaDto,
+    @Req() req: any,
+  ) {
+    return this.businessAreaService.createOrUpdate(
+      createBusinessAreaDto,
+      req?.user?.roles,
+    );
   }
 
   @Get()
-  findAll(@Query() query: GetBusinessAreDto) {
-    return this.businessAreaService.findAll(query);
+  findAll(@Query() query: GetBusinessAreDto, @Req() req: any) {
+    return this.businessAreaService.findAll(query, req?.user?.roles);
   }
 
   @Get(':id')

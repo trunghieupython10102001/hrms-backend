@@ -1,8 +1,18 @@
 import {
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  uploadBytes,
+  uploadString,
+} from '@firebase/storage';
+import { storage } from '../configs/firebase';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { SigninDto, SignupDto, UpdateUserDto } from './dto/auth.dto';
@@ -10,6 +20,9 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { FUNCTION_ID } from 'src/constants/role';
+import { checkRole, Operation } from 'src/common/checkRole';
+import { uuidv4 } from '@firebase/util';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +32,18 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto, createdBy: number) {
+  async signup(dto: SignupDto, createdBy: number, roles: any) {
     const password = await argon.hash(dto.password);
+
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_INSERT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
 
     try {
       const user = await this.prisma.user.create({
@@ -31,7 +54,7 @@ export class AuthService {
           fullname: dto.fullname,
           phoneNumber: dto.phoneNumber,
           dateOfBirth: new Date(dto.dateOfBirth),
-          avatarUrl: dto.avatarUrl,
+          avatarUrl: '',
           createdBy: +createdBy,
         },
       });
@@ -48,13 +71,25 @@ export class AuthService {
     }
   }
 
-  async getAllUser(query: any) {
+  async getAllUser(query: any, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       const { keyword } = query;
       const users = await this.prisma.user.findMany({
         where: !keyword
-          ? {}
+          ? {
+              isDeleted: false,
+            }
           : {
+              isDeleted: false,
               OR: [
                 {
                   fullname: {
@@ -192,7 +227,16 @@ export class AuthService {
     });
   }
 
-  async updatePassword(userId: number, dto: UpdatePasswordDto) {
+  async updatePassword(userId: number, dto: UpdatePasswordDto, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_UPDATE,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -220,7 +264,16 @@ export class AuthService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       const user = await this.prisma.user.findUnique({
         where: {
@@ -244,7 +297,16 @@ export class AuthService {
     }
   }
 
-  async deleteUser(userId: number) {
+  async deleteUser(userId: number, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_DELETE,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       await this.prisma.user.update({
         where: {
@@ -264,16 +326,23 @@ export class AuthService {
     }
   }
 
-  async updateUser(id: number, dto: UpdateUserDto) {
-    const { avatarUrl, dateOfBirth, email, fullname, password, phoneNumber } =
-      dto;
+  async updateUser(id: number, dto: UpdateUserDto, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_UPDATE,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const { dateOfBirth, email, fullname, password, phoneNumber } = dto;
     try {
       const user = await this.prisma.user.update({
         where: {
           id,
         },
         data: {
-          avatarUrl,
           dateOfBirth,
           email,
           fullname,
@@ -289,5 +358,28 @@ export class AuthService {
     } catch (error) {
       throw new InternalServerErrorException();
     }
+  }
+
+  async uploadImage(file: Express.Multer.File, dto: any) {
+    if (!file)
+      throw new HttpException('File not found', HttpStatus.BAD_REQUEST);
+
+    const storageRef = ref(storage, `/utico/${uuidv4()}${file.originalname}`);
+    console.log(file.buffer);
+    const uploadTask = uploadBytes(storageRef, file.buffer);
+    const avatarUrl = await getDownloadURL((await uploadTask).ref);
+    console.log(avatarUrl);
+    await this.prisma.user.update({
+      where: {
+        id: +dto?.id,
+      },
+      data: {
+        avatarUrl,
+      },
+    });
+    return {
+      status: 201,
+      message: 'Upload avatar successfully',
+    };
   }
 }

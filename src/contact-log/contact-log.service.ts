@@ -1,5 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DateTime, Int, NVarChar, Request, SmallInt } from 'mssql';
+import { checkRole, Operation } from 'src/common/checkRole';
+import { FUNCTION_ID } from 'src/constants/role';
 import { DbService } from 'src/db/db.service';
 import { CreateContactLogDto } from './dto/create-contact-log.dto';
 import { GetContactLogDto } from './dto/get-contact-log.dto';
@@ -11,7 +18,17 @@ export class ContactLogService {
   async createOrUpdate(
     createContactLogDto: CreateContactLogDto,
     username: string,
+    roles: any,
   ) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_INSERT,
+      FUNCTION_ID.CONTACT_LOG,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     const { businessId, logId, content, note, status } = createContactLogDto;
 
     const conn = this.db.getConnection();
@@ -44,7 +61,16 @@ export class ContactLogService {
     }
   }
 
-  async findAll(query: GetContactLogDto) {
+  async findAll(query: GetContactLogDto, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.CONTACT_LOG,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     const { businessId, logId, fromDate, toDate } = query;
 
     console.log('query', query);

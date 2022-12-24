@@ -9,8 +9,11 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SigninDto, SignupDto, UpdateUserDto } from './dto/auth.dto';
@@ -24,14 +27,13 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Post('signup')
   signup(@Body() dto: SignupDto, @Req() req: any) {
-    console.log(req.user);
-    return this.authService.signup(dto, req?.user?.id);
+    return this.authService.signup(dto, req?.user?.id, req?.user?.roles);
   }
 
   @UseGuards(JwtGuard)
   @Get('getMe')
   getMe(@Req() req: any) {
-    return this.authService.findOne(+req.user.id);
+    return this.authService.findOne(+req.user.id, req?.user?.roles);
   }
 
   @Post('signin')
@@ -46,31 +48,46 @@ export class AuthController {
 
   @UseGuards(JwtGuard)
   @Get('getAll')
-  getAll(@Query() query) {
-    return this.authService.getAllUser(query);
+  getAll(@Query() query, @Req() req: any) {
+    return this.authService.getAllUser(query, req?.user?.roles);
   }
 
   @UseGuards(JwtGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.authService.findOne(+id, req?.user?.roles);
   }
 
   @UseGuards(JwtGuard)
   @Patch('updatePassword')
   updatePassword(@Body() dto: UpdatePasswordDto, @Req() req: any) {
-    return this.authService.updatePassword(+req?.user?.id, dto);
+    return this.authService.updatePassword(
+      +req?.user?.id,
+      dto,
+      req?.user?.roles,
+    );
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.deleteUser(+id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.authService.deleteUser(+id, req?.user?.roles);
   }
 
   @UseGuards(JwtGuard)
   @Put(':id')
-  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return this.authService.updateUser(+id, dto);
+  updateUser(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @Req() req: any,
+  ) {
+    return this.authService.updateUser(+id, dto, req?.user?.roles);
+  }
+
+  @UseGuards(JwtGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('avatar')
+  uploadImage(@UploadedFile() file: Express.Multer.File, @Body() dto: any) {
+    return this.authService.uploadImage(file, dto);
   }
 }

@@ -1,8 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserFunctionDto } from './dto/create-user-function.dto';
 import { UpdateUserFunctionDto } from './dto/update-user-function.dto';
 import { Request } from 'express';
+import { checkRole, Operation } from 'src/common/checkRole';
+import { FUNCTION_ID } from 'src/constants/role';
 
 @Injectable()
 export class UserFunctionService {
@@ -13,7 +20,16 @@ export class UserFunctionService {
     } catch (error) {}
   }
 
-  async findAll() {
+  async findAll(roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       const allUserFunction = await this.prisma.userFunction.findMany();
       return allUserFunction;
@@ -22,7 +38,16 @@ export class UserFunctionService {
     }
   }
 
-  async findOne(id: number, req: any) {
+  async findOne(id: number, req: any, roles: any) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       if (id === req.user?.id) {
         const userFunction = await this.prisma.userFunction.findMany({
@@ -60,7 +85,17 @@ export class UserFunctionService {
   async createOrUpdate(
     createdBy: number,
     updateUserFunctionDto: UpdateUserFunctionDto,
+    roles: any,
   ) {
+    const isAllow = checkRole(
+      roles,
+      Operation.IS_INSERT,
+      FUNCTION_ID.USER_MANAGEMENT,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     try {
       const userFunction = await this.prisma.userFunction.upsert({
         create: {

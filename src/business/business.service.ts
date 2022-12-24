@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { GetBusinessDto } from './dto/get-business.dto';
@@ -11,6 +16,8 @@ import {
   VarChar,
   BigInt,
 } from 'mssql';
+import { checkRole, Operation } from 'src/common/checkRole';
+import { FUNCTION_ID } from 'src/constants/role';
 
 @Injectable()
 export class BusinessService {
@@ -36,7 +43,12 @@ export class BusinessService {
     return conn;
   }
 
-  async findAll(query: GetBusinessDto) {
+  async findAll(query: GetBusinessDto, roles: any) {
+    const isAllow = checkRole(roles, Operation.IS_GRANT, FUNCTION_ID.BUSINESS);
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     const {
       businessId,
       businessEmail,
@@ -62,7 +74,12 @@ export class BusinessService {
     return `This action returns a #${id} business`;
   }
 
-  async createOrUpdate(dto: CreateBusinessDto, username: string) {
+  async createOrUpdate(dto: CreateBusinessDto, username: string, roles: any) {
+    const isAllow = checkRole(roles, Operation.IS_INSERT, FUNCTION_ID.BUSINESS);
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
     const {
       businessId,
       businessAddress,
