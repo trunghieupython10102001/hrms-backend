@@ -16,6 +16,7 @@ import {
   VarChar,
   BigInt,
 } from 'mssql';
+import { read, readFile, utils, writeFile, writeFileXLSX } from 'xlsx';
 import { checkRole, Operation } from 'src/common/checkRole';
 import { FUNCTION_ID } from 'src/constants/role';
 
@@ -127,5 +128,120 @@ export class BusinessService {
       console.log(error);
       throw new InternalServerErrorException();
     }
+  }
+
+  async getExcelTemplate(roles: any) {
+    const isAllow = checkRole(roles, Operation.IS_GRANT, FUNCTION_ID.BUSINESS);
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const fileName = 'business.xlsx';
+    return fileName;
+  }
+
+  async importExcel(file: Express.Multer.File, req: any) {
+    const workbook = read(file.buffer);
+    const sheetNames = workbook.SheetNames;
+    let sheets = [];
+    sheetNames.filter(
+      (name) =>
+        (sheets = utils.sheet_to_json(workbook.Sheets[name], {
+          header: 1,
+        })),
+    );
+
+    sheets.shift();
+    const dtos: Array<CreateBusinessDto> = sheets.map((sheet) => {
+      return {
+        businessId: 0,
+        businessName: sheet[0],
+        businessType: sheet[1],
+        businessAreaId: sheet[2],
+        businessAddress: sheet[3],
+        businessEmail: sheet[4],
+        businessPhone: '' + sheet[5],
+        country: sheet[6],
+        contactDeatail: sheet[7],
+        note: sheet[8],
+        status: sheet[9],
+      };
+    });
+    console.log(sheets);
+    console.log(dtos);
+    try {
+      const createRecords = async (dtos: Array<CreateBusinessDto>) => {
+        dtos.map(async (dto) => {
+          const res = await this.createOrUpdate(
+            dto,
+            req?.user?.username,
+            req?.user?.roles,
+          );
+          console.log(res);
+        });
+      };
+      await createRecords(dtos);
+      return {
+        status: HttpStatus.CREATED,
+        message: 'Import Excel successfully',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async exportExcel(query: any, req: any) {
+    const isAllow = checkRole(
+      req?.user?.roles,
+      Operation.IS_GRANT,
+      FUNCTION_ID.BUSINESS,
+    );
+
+    if (!isAllow) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const conn = this.db.getConnection();
+    const connection = await conn.connect();
+    const request = new Request(connection);
+    request.input('BusinessIDs', NVarChar(50), query.ids);
+    const result = await request.execute('SP_Business_Export_CMS');
+    console.log(result.recordsets);
+    const workbook = utils.book_new();
+    const data = result.recordsets[0].map((item) => {
+      return [
+        item.BusinessName,
+        item.BusinessType,
+        item.BusinessAreaID,
+        item.BusinessAddress,
+        item.BusinessEmail,
+        item.BusinessPhone,
+        item.Country,
+        item.ContactDetail,
+        item.Note,
+        item.Status,
+      ];
+    });
+
+    const worksheet = utils.aoa_to_sheet([
+      [
+        'businessName',
+        'businessType',
+        'businessAreaId',
+        'businessAddress',
+        'businessEmail',
+        'businessPhone',
+        'country',
+        'contactDeatail',
+        'note',
+        'status',
+      ],
+      ...data,
+    ]);
+
+    utils.book_append_sheet(workbook, worksheet);
+    const fileName = 'business-exported.xlsx';
+
+    writeFileXLSX(workbook, `static/${fileName}`);
+    return fileName;
   }
 }

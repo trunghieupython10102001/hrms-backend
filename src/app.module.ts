@@ -9,9 +9,14 @@ import { DbModule } from './db/db.module';
 import { BusinessAreaModule } from './business-area/business-area.module';
 import { BusinessDetailModule } from './business-detail/business-detail.module';
 import { ContactLogModule } from './contact-log/contact-log.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+    }),
     PrismaModule,
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,

@@ -14,7 +14,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SigninDto, SignupDto, UpdateUserDto } from './dto/auth.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';

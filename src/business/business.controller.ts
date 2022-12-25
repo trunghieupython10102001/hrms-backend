@@ -7,7 +7,11 @@ import {
   Query,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { query } from 'express';
 import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
@@ -31,5 +35,21 @@ export class BusinessController {
   @Get()
   findAll(@Query() query: GetBusinessDto, @Req() req: any) {
     return this.businessService.findAll(query, req?.user?.roles);
+  }
+
+  @Get('template')
+  getExcel(@Req() req: any) {
+    return this.businessService.getExcelTemplate(req?.user?.roles);
+  }
+
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('excel')
+  importExcel(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+    return this.businessService.importExcel(file, req);
+  }
+
+  @Get('excel')
+  exportExcel(@Query() query: any, @Req() req: any) {
+    return this.businessService.exportExcel(query, req);
   }
 }
