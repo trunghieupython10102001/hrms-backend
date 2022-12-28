@@ -16,6 +16,11 @@ export class GetBusinessDto {
   @IsOptional()
   businessType?: 0 | 1 | 2;
 
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  businessAreaId?: number;
+
   @IsEmail()
   @IsOptional()
   businessEmail?: string;

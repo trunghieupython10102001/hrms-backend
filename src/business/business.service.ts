@@ -57,11 +57,13 @@ export class BusinessService {
       businessPhone,
       businessType,
       status,
+      businessAreaId,
     } = query;
     const conn = this.db.getConnection();
     const connection = await conn.connect();
     const request = new Request(connection);
     request.input('BusinessID', Int, businessId);
+    request.input('BusinessAreaID', Int, businessAreaId);
     request.input('BusinessName', NVarChar(255), businessName);
     request.input('BusinessType', SmallInt, businessType);
     request.input('BusinessEmail', NVarChar(255), businessEmail);

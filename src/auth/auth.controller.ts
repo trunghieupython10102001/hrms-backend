@@ -32,7 +32,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Get('getMe')
   getMe(@Req() req: any) {
-    return this.authService.findOne(+req.user.id, req?.user?.roles);
+    return this.authService.findOne(+req.user.id, req);
   }
 
   @Post('signin')
@@ -54,7 +54,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.authService.findOne(+id, req?.user?.roles);
+    return this.authService.findOne(+id, req);
   }
 
   @UseGuards(JwtGuard)

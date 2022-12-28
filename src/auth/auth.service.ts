@@ -5,13 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  uploadBytes,
-  uploadString,
-} from '@firebase/storage';
+import { ref, getDownloadURL, uploadBytes } from '@firebase/storage';
 import { storage } from '../configs/firebase';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
@@ -264,15 +258,21 @@ export class AuthService {
     };
   }
 
-  async findOne(id: number, roles: any) {
+  async findOne(id: number, req: any) {
     const isAllow = checkRole(
-      roles,
+      req?.user?.roles,
       Operation.IS_GRANT,
       FUNCTION_ID.USER_MANAGEMENT,
     );
 
-    if (!isAllow) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    // console.log('isAllow', isAllow);
+
+    if (req?.user?.id !== id) {
+      if (!isAllow) {
+        console.log('id', id);
+        console.log('req', req?.user?.id);
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
     }
     try {
       const user = await this.prisma.user.findUnique({
