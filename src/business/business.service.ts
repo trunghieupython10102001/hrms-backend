@@ -152,6 +152,7 @@ export class BusinessService {
           header: 1,
         })),
     );
+    sheets.shift();
 
     const dtos: Array<CreateBusinessDto> = sheets.map((sheet) => {
       return {
@@ -167,6 +168,7 @@ export class BusinessService {
         note: sheet[7],
       };
     });
+
     try {
       const createRecords = async (dtos: Array<CreateBusinessDto>) => {
         dtos.map(async (dto) => {
