@@ -221,15 +221,17 @@ export class AuthService {
     });
   }
 
-  async updatePassword(userId: number, dto: UpdatePasswordDto, roles: any) {
+  async updatePassword(userId: number, dto: UpdatePasswordDto, req: any) {
     const isAllow = checkRole(
-      roles,
+      req?.user?.roles,
       Operation.IS_UPDATE,
       FUNCTION_ID.USER_MANAGEMENT,
     );
 
-    if (!isAllow) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if (req?.user?.id !== userId) {
+      if (!isAllow) {
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
     }
     const user = await this.prisma.user.findUnique({
       where: {
@@ -326,15 +328,17 @@ export class AuthService {
     }
   }
 
-  async updateUser(id: number, dto: UpdateUserDto, roles: any) {
+  async updateUser(id: number, dto: UpdateUserDto, req: any) {
     const isAllow = checkRole(
-      roles,
+      req?.user?.roles,
       Operation.IS_UPDATE,
       FUNCTION_ID.USER_MANAGEMENT,
     );
 
-    if (!isAllow) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if (req?.user?.id !== id) {
+      if (!isAllow) {
+        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      }
     }
     const { dateOfBirth, email, fullname, password, phoneNumber } = dto;
     try {

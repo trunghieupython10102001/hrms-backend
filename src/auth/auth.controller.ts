@@ -60,11 +60,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Patch('updatePassword')
   updatePassword(@Body() dto: UpdatePasswordDto, @Req() req: any) {
-    return this.authService.updatePassword(
-      +req?.user?.id,
-      dto,
-      req?.user?.roles,
-    );
+    return this.authService.updatePassword(+req?.user?.id, dto, req);
   }
 
   @UseGuards(JwtGuard)
@@ -80,7 +76,7 @@ export class AuthController {
     @Body() dto: UpdateUserDto,
     @Req() req: any,
   ) {
-    return this.authService.updateUser(+id, dto, req?.user?.roles);
+    return this.authService.updateUser(+id, dto, req);
   }
 
   @UseGuards(JwtGuard)
