@@ -208,7 +208,6 @@ export class BusinessService {
     const data = result.recordsets[0].map((item) => {
       return [
         item.BusinessName,
-        item.BusinessType,
         item.BusinessAreaID,
         item.BusinessAddress,
         item.BusinessEmail,
@@ -216,25 +215,24 @@ export class BusinessService {
         item.Country,
         item.ContactDetail,
         item.Note,
-        item.Status,
       ];
     });
 
     const worksheet = utils.aoa_to_sheet([
       [
-        'businessName',
-        'businessType',
-        'businessAreaId',
-        'businessAddress',
-        'businessEmail',
-        'businessPhone',
-        'country',
-        'contactDeatail',
-        'note',
-        'status',
+        'TÊN DOANH NGHIỆP',
+        'LĨNH VỰC KINH DOANH',
+        'ĐỊA CHỈ XUẤT/NHẬP KHẢU',
+        'EMAIL',
+        'ĐIỆN THOẠI',
+        'QUỐC GIA',
+        'CHI TIẾT LIÊN HỆ',
+        'GHI CHÚ',
       ],
       ...data,
     ]);
+
+    worksheet['!cols'] = [{ width: 10 }];
 
     utils.book_append_sheet(workbook, worksheet);
     const fileName = 'business-exported.xlsx';
