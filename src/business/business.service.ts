@@ -142,7 +142,7 @@ export class BusinessService {
     return fileName;
   }
 
-  async importExcel(file: Express.Multer.File, req: any) {
+  async importExcel(file: Express.Multer.File, req: any, type: number) {
     const workbook = read(file.buffer);
     const sheetNames = workbook.SheetNames;
     let sheets = [];
@@ -153,24 +153,20 @@ export class BusinessService {
         })),
     );
 
-    sheets.shift();
     const dtos: Array<CreateBusinessDto> = sheets.map((sheet) => {
       return {
         businessId: 0,
         businessName: sheet[0],
-        businessType: sheet[1],
-        businessAreaId: sheet[2],
-        businessAddress: sheet[3],
-        businessEmail: sheet[4],
-        businessPhone: '' + sheet[5],
-        country: sheet[6],
-        contactDeatail: sheet[7],
-        note: sheet[8],
-        status: sheet[9],
+        businessType: type as 1 | 2,
+        businessAreaId: sheet[1],
+        businessAddress: sheet[2],
+        businessEmail: sheet[3],
+        businessPhone: '' + sheet[4],
+        country: sheet[5],
+        contactDeatail: sheet[6],
+        note: sheet[7],
       };
     });
-    console.log(sheets);
-    console.log(dtos);
     try {
       const createRecords = async (dtos: Array<CreateBusinessDto>) => {
         dtos.map(async (dto) => {

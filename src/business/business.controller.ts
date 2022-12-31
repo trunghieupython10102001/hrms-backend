@@ -43,9 +43,13 @@ export class BusinessController {
   }
 
   @UseInterceptors(FileInterceptor('file'))
-  @Post('excel')
-  importExcel(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
-    return this.businessService.importExcel(file, req);
+  @Post('excel/:type')
+  importExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: any,
+    @Param('type') type: string,
+  ) {
+    return this.businessService.importExcel(file, req, +type);
   }
 
   @Get('excel')
