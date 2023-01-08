@@ -12,8 +12,8 @@ export const role = {
 };
 
 export enum FUNCTION_ID {
-  USER_MANAGEMENT = 1,
-  BUSINESS = 2,
-  BUSINESS_AREA = 1009,
-  CONTACT_LOG = 1010,
+  USER_MANAGEMENT = 7,
+  BUSINESS = 10,
+  BUSINESS_AREA = 12,
+  CONTACT_LOG = 13,
 }
