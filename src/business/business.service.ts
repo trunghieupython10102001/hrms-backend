@@ -47,6 +47,9 @@ export class BusinessService {
   async findAll(query: GetBusinessDto, roles: any) {
     const isAllow = checkRole(roles, Operation.IS_GRANT, FUNCTION_ID.BUSINESS);
 
+    console.log('role', roles);
+    console.log('id', FUNCTION_ID.BUSINESS);
+
     if (!isAllow) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
